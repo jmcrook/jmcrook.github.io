@@ -5,6 +5,15 @@
   width: 50%;
 }
 
+a {
+  text-align: center;
+}
+
+@font-face {
+  font-family: linkFont;
+  src: "mini-jian-caocuyuan.ttf";
+}
+
 
 
 /*
