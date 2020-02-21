@@ -13,4 +13,13 @@
 a {
   text-align: center;
   font-family: jian;
+  color: hotpink;
+}
+
+a:link {
+  text-decoration: none;
+}
+
+a:visited {
+  text-decoration: none;
 }
