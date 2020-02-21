@@ -6,11 +6,11 @@
 }
 
 @font-face {
-  font-family: jian;
+  font-family: "jian";
   src: url(bernie-san.com/mini-jian-caocuyuan.ttf);
 }
 
 a {
   text-align: center;
-  font-family: jian;
+  font-family: "jian";
 }
