@@ -4,9 +4,10 @@
   margin-right: auto;
   width: 50%;
 }
+
 img {
-  max-width: 100%;
-  height: auto;
+  max-height: 90%;
+  width: auto;
 }
 
 @font-face {
