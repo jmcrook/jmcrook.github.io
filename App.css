@@ -7,7 +7,7 @@
 
 img {
   height: 90vh;
-  width: ;
+  width: 35vh;
 }
 
 @font-face {
@@ -19,6 +19,7 @@ a {
   text-align: center;
   font-family: jian;
   color: hotpink;
+  font-size: large;
 }
 
 a:link {
