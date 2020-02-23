@@ -6,8 +6,8 @@
 }
 
 img {
-  height: 80vh;
-  width: calc(height/3.0);
+  height: auto;
+  width: auto;
 }
 
 @font-face {
