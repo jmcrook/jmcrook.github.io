@@ -6,8 +6,8 @@
 }
 
 img {
-  height: 90vh;
-  width: 35vh;
+  height: 90vmax;
+  width: 35vmax;
 }
 
 @font-face {
