@@ -4,6 +4,10 @@
   margin-right: auto;
 }
 
+.text-centered {
+  text-align: center;
+}
+
 img {
   height: 80vh
 }
@@ -37,4 +41,11 @@ a:visited {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.pinkbox {
+  width: 50vw;
+  height: 95vh;
+  border: 10px solid hotpink;
+  display: inline-block;
 }
