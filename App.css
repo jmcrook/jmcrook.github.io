@@ -8,6 +8,11 @@ img {
   height: 80vh
 }
 
+.icon {
+  width: 30%
+  height: auto;
+}
+
 @font-face {
   font-family: 'jian';
   src: url('mini-jian-caocuyuan.ttf') format('truetype');
