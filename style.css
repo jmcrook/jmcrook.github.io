@@ -46,7 +46,17 @@ a:visited {
 
 .pinkbox {
   width: 50vw;
-  height: 95vh;
-  border: 10px solid hotpink;
+  height: 95vm;
+  border: 20px solid hotpink;
   display: inline-block;
+}
+
+.pinkbox-large {
+  width: 80vw;
+  margin: auto;
+}
+
+.icon-square {
+  width:27vmin;
+  height:27vmin;
 }
