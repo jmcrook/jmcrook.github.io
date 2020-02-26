@@ -1,16 +1,77 @@
-.center {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
+html, body {
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.product {
+  height: 80vh;
+}
+
+.overlay {
+  position: absolute;
+  visibility: hidden;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.next-button {
+  position: absolute;
+  top: 40%;
+  height: 8vh;
+  width: auto;
+}
+
+.button-left {
+    left: 15%;
+}
+
+.button-right {
+    right: 15%;
+}
+
+.centered {
+  display: inline-block;
+
 }
 
 .text-centered {
   text-align: center;
 }
 
-img {
-  height: 80vh
+.padded {
+  padding: 20px;
 }
+
+.centered-child {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.pinkbox {
+  border: 5px solid hotpink;
+}
+
+.pinkbox-small {
+  width: 35vmin;
+  height: 95vmin;
+}
+
+.pinkbox-large {
+  width: 80vw;
+}
+
+.icon-square {
+  width:27vmin;
+  height:27vmin;
+}
+
 
 @font-face {
   font-family: 'jian';
@@ -30,33 +91,4 @@ a:link {
 
 a:visited {
   text-decoration: none;
-}
-
-.parent {
-  position: relative;
-  height: 100vh;
-}
-
-.child {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.pinkbox {
-  width: 50vw;
-  height: 95vm;
-  border: 20px solid hotpink;
-  display: inline-block;
-}
-
-.pinkbox-large {
-  width: 80vw;
-  margin: auto;
-}
-
-.icon-square {
-  width:27vmin;
-  height:27vmin;
 }
