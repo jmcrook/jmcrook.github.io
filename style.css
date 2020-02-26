@@ -7,6 +7,14 @@ html, body {
   left: 0;
 }
 
+.form-input {
+  display: block;
+  width: 50vw;
+  height: 3vh;
+  font-size: Medium;
+}
+
+
 .product {
   height: 80vh;
 }
