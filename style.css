@@ -16,7 +16,7 @@ html, body {
 
 
 .product {
-  height: 80vh;
+  height: 66vh;
 }
 
 .overlay {
@@ -29,7 +29,7 @@ html, body {
 
 .next-button {
   position: absolute;
-  top: 40%;
+  top: 33%;
   height: 8vh;
   width: auto;
 }
@@ -63,7 +63,7 @@ html, body {
 }
 
 .pinkbox {
-  border: 5px solid hotpink;
+  border: 3px solid hotpink;
 }
 
 .pinkbox-small {
