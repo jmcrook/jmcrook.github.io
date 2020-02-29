@@ -7,9 +7,31 @@ html, body {
   left: 0;
 }
 
+.aside {
+  font-family: times;
+  font-size: small;
+}
+
+.row {
+  display: flex;
+}
+
+.column {
+  flex: 50%;
+}
+
+.label-column {
+  text-align: right;
+  padding: 10px;
+}
+
+.form-label {
+  font-family: Arial;
+}
+
 .form-input {
   display: block;
-  width: 50vw;
+  width: 50%;
   height: 3vh;
   font-size: Medium;
 }
@@ -29,17 +51,18 @@ html, body {
 
 .next-button {
   position: absolute;
-  top: 33%;
+  z-index: 2;
+  top: 40%;
   height: 8vh;
   width: auto;
 }
 
 .button-left {
-    left: 15%;
+    left: 10%;
 }
 
 .button-right {
-    right: 15%;
+    right: 10%;
 }
 
 .centered {
@@ -83,7 +106,7 @@ html, body {
 
 @font-face {
   font-family: 'jian';
-  src: url('mini-jian-caocuyuan.ttf') format('truetype');
+  src: url('fonts/mini-jian-caocuyuan.ttf') format('truetype');
 }
 
 a {
@@ -99,4 +122,53 @@ a:link {
 
 a:visited {
   text-decoration: none;
+}
+
+.total {
+  font-weight: bold;
+  font-size: large:
+}
+
+.form-submit-button-3d_round_pink {
+
+    cursor: pointer;
+
+    -moz-border-radius:2em;
+    -webkit-border-radius:2em;
+    border-radius:2em;
+
+    padding:8px 18px;
+
+    color: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+
+    text-shadow:0px 1px 0px #FF69B4;
+
+    border:1px solid #e942f5;
+
+    -moz-box-shadow:inset 0px 1px 0px 0px #FF69B4, 0 4px 0 0 #e942f5, 0px 6px 2px 1px rgba(0, 0, 0, 0.30);
+    -webkit-box-shadow:inset 0px 1px 0px 0px #FF69B4, 0 4px 0 0 #e942f5, 0px 6px 2px 1px rgba(0, 0, 0, 0.30);
+    box-shadow:inset 0px 1px 0px 0px #FF69B4, 0 4px 0 0 #e942f5, 0px 6px 2px 1px rgba(0, 0, 0, 0.30);
+
+    background: #FF69B4;
+
+}
+
+.form-submit-button-3d_round_pink:hover {
+	color: #e942f5 !important;
+	border:1px solid #e942f5 !important;
+	background: #FF69B4;
+}
+
+.form-submit-button-3d_round_pink:active {
+	border:1px solid #e942f5 !important;
+	color: #e942f5 !important;
+    position: relative;
+    top: 3px;
+
+    -moz-box-shadow:inset 0px 1px 0px 0px #FF69B4, 0 2px 0 0 #e942f5, 0px 2px 2px 1px rgba(0, 0, 0, 0.30);
+    -webkit-box-shadow:inset 0px 1px 0px 0px #FF69B4, 0 2px 0 0 #e942f5, 0px 2px 2px 1px rgba(0, 0, 0, 0.30);
+    box-shadow:inset 0px 1px 0px 0px #FF69B4, 0 2px 0 0 #e942f5, 0px 2px 2px 1px rgba(0, 0, 0, 0.30);
 }

@@ -1,10 +1,8 @@
 function picChange(){
-  if (document.getElementById('b').src.includes("bernie")) {
-    console.log('wut');
-    document.getElementById('b').src="images/medicare4all.png";
+  if (document.getElementById('b').src.includes("pillow")) {
+    document.getElementById('b').src="images/tshirt.gif";
   } else {
-    document.getElementById('b').src="images/bernie_slow.gif"
-    console.log(document.getElementById('b').src);
+    document.getElementById('b').src="images/pillow.gif";
   }
 }
 

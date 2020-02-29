@@ -7,39 +7,134 @@
   </head>
   <body>
     <div class='padded centered-child pinkbox'>
-      <form action="https://formspree.io/mlennoqg" method="POST">
-        <input name="quantity" type="number" placeholder="Quantity" class="form-input">
-        <br>
-        <div display="inline-block">
-          <input name="withPillow" type="checkbox">
-          <label style="font-family: Arial;" for="withPillow">
-            With Pillow? (+29.99$) Pillow case alone fits two regular-sized pillows
-          </label>
+      <form class="gform" method="POST"
+      action="https://script.google.com/macros/s/AKfycby-K3uNTupDX8aGcMvsqtuRHiC29Kk1-Ry57go_EBz9iB5OQZbO/exec">
+      <div class="text-centered form-elements">
+        <div class="row">
+          <div class="label-column column">
+            <label for="quantity" class=form-label>Quantity:</label>
+          </div>
+          <div class="column">
+            <input name="quantity" id='q' onchange="calculateAmount()"
+              type="text" placeholder="Quantity" class="form-input" required>
+          </div>
         </div>
-
-        <br>
-        <input name="full-name" type="text" placeholder="full name" class="form-input" required>
-        <br>
-        <input name="employer" type="text" placeholder="employer" class="form-input" required>
-        <br>
-        <input name="email" type="email" placeholder="email" class="form-input" required>
-        <br>
-        <input name="venmo-id" type="text" placeholder="venmo ID" class="form-input" required>
-        <br>
-        <input name="address-line1" type="text" placeholder="address line 1" class="form-input" required>
-        <input name="address-line2" type="text" placeholder="address line 2" class="form-input">
-        <br>
-        <p style="font-family: Arial; font-size: medium;">
-          Product available in U.S. and Canada only.
-        </p>
-        <input name="city" type="text" placeholder="city" class="form-input" required>
-        <input name="region" type="text" placeholder="state / province" class="form-input" required>
-        <input name="postal-code" type="text" placeholder="zip or postal code" class="form-input" required>
-        <input name="submit" type="submit">
+        <div class="row">
+          <div class="label-column column">
+            <label class="aside" for="withPillow">
+              With Pillow? (+29.99$) Pillow case alone fits two regular-sized pillows
+            </label>
+          </div>
+          <div class="column">
+            <input id='withP' name="withPillow" onchange="calculateAmount()"
+              type="checkbox" class="form-input">
+          </div>
+        </div>
+        <div class="row">
+          <div class="label-column column">
+            <label for="full-name" class=form-label>Full Name:</label>
+          </div>
+          <div class="column">
+            <input name="full-name" type="text" placeholder="full name" class="form-input" required>
+          </div>
+        </div>
+        <div class="row">
+          <div class="label-column column">
+            <label for="employer" class=form-label>Employer:</label>
+          </div>
+          <div class="column">
+            <input name="employer" type="text" placeholder="employer" class="form-input" required>
+          </div>
+        </div>
+        <div class="row">
+          <div class="label-column column">
+            <label for="email" class=form-label>Email:</label>
+          </div>
+          <div class="column">
+            <input name="email" type="email" placeholder="email" class="form-input" required>
+          </div>
+        </div>
+        <div class="row">
+          <div class="label-column column">
+            <label for="venmo-id"  class=form-label>Venmo ID:</label>
+          </div>
+          <div class="column">
+            <input name="venmo-id" type="text" placeholder="venmo ID" class="form-input" required>
+          </div>
+        </div>
+        <div class="row">
+          <div class="label-column column">
+            <label for="address-line1" type="text" class=form-label>Address Line 1:</label>
+          </div>
+          <div class="column">
+            <input name="address-line1" type="text" placeholder="address line 1" class="form-input" required>
+          </div>
+        </div>
+        <div class="row">
+          <div class="label-column column">
+            <label for="address-line2" type="text" class=form-label>Address Line 2:</label>
+          </div>
+          <div class="column">
+            <input name="address-line2" type="text" placeholder="address line 2" class="form-input">
+          </div>
+        </div>
+        <div class="row">
+          <div class="label-column column">
+            <label for="city" class=form-label>City:</label>
+          </div>
+          <div class="column">
+            <input name="city" type="text" placeholder="city" class="form-input" required>
+          </div>
+        </div>
+        <div class="row">
+          <div class="label-column column">
+            <label for="region" class=form-label>State or Province:</label>
+            <p class="aside">
+              Product available in U.S. and Canada only.
+            </p>
+          </div>
+          <div class="column">
+            <input name="region" type="text" placeholder="state / province" class="form-input" required>
+          </div>
+        </div>
+        <div class="row">
+          <div class="label-column column">
+            <label for="postal-code" class=form-label>Postal Code</label>
+          </div>
+          <div class="column">
+            <input name="postal-code" type="text" placeholder="zip or postal code" class="form-input" required>
+          </div>
+        </div>
+      <div class="row">
+        <div class="label-column column">
+          <p>Total:</p>
+        </div>
+        <div class="padded label-column column">
+          <input id="total" name="total" class ="total" readonly></input>
+        </div>
+      </div>
+      <input name="submit" type="submit" class="form-submit-button-3d_round_pink">
+      </div>
+      </div>
+        <div style="display:none" class="thankyou_message">
+         <!-- You can customize the thankyou message by editing the code below -->
+         <h2><em>Thanks</em> for placing an order!!
+         </h2>
+        </div>
       </form>
-    <div>
-
-
-
+    </div>
+    <script data-cfasync="false" type="text/javascript" src="form-submission-handler.js">
+    </script>
+    <script>
+      function calculateAmount() {
+        var q = document.getElementById('q').value;
+        var p = 39.99;
+        if (document.getElementById('withP').checked) {
+          p = 69.98
+        }
+        /*display the result*/
+        document.getElementById('total').value = q * p;
+  }
+    </script>
   </body>
 </html>
