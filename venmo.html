@@ -32,7 +32,9 @@
           </div>
           <div class="row">
             <div class="label-column column">
-              <label for="cases" class='form-label'>Pillow Case ($39.99) Quantity:</label>
+              <label for="cases" class='form-label'>Pillow Case no pillow ($39.99) Quantity:
+                <br> Pillow cases fit one body pillow or two typical pillows.
+              </label>
             </div>
             <div class="column">
               <input name="cases" id='c' onchange="calculateAmount()"
@@ -42,7 +44,7 @@
           <div class="row">
             <div class="label-column column">
               <label for="pillows" class='form-label'>
-                Body Pillows ($29.99) Quantity: <br> Pillow cases fit one body pillow or two typical pillows.
+                Pillowcase with pillow ($69.99) Quantity:
               </label>
             </div>
             <div class="column">
@@ -169,9 +171,9 @@
         var p = document.getElementById('p').value;
 
         /*display the result*/
-        document.getElementById('order').value = (s*39.99) + (c*39.99) + (p * 29.99);
-        document.getElementById('tax').value = Math.round(((s*39.99*.085) + (((c*39.99) + (p*29.99))*.08875))*100)/100;
-        document.getElementById('total').value = Math.round(((s*39.99*1.085) + (((c*39.99) + (p*29.99))*1.08875))*100)/100;
+        document.getElementById('order').value = (s*39.99) + (c*39.99) + (p * 69.99);
+        document.getElementById('tax').value = Math.round(((s*39.99*.085) + (((c*39.99) + (p*69.99))*.08875))*100)/100;
+        document.getElementById('total').value = Math.round(((s*39.99*1.085) + (((c*39.99) + (p*69.99))*1.08875))*100)/100;
   }
     </script>
   </body>
