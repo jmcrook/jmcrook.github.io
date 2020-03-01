@@ -7,6 +7,11 @@ html, body {
   left: 0;
 }
 
+.contained {
+  max-width: 100%;
+  max-height: 100%;
+}
+
 .aside {
   font-family: times;
   font-size: small;
@@ -29,6 +34,7 @@ html, body {
   font-family: Arial;
 }
 
+
 .form-input {
   display: block;
   width: 50%;
@@ -37,7 +43,7 @@ html, body {
 }
 
 .thankyou_message {
-  
+
 }
 
 
@@ -128,9 +134,10 @@ a:visited {
   text-decoration: none;
 }
 
-.total {
+.total-column {
   font-weight: bold;
-  font-size: large:
+  font-size: large;
+  text-align: left;
 }
 
 .form-submit-button-3d_round_pink {

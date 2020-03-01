@@ -6,28 +6,48 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <div class='padded centered-child pinkbox'>
+    <div class='padded pinkbox'>
       <form class="gform" method="POST"
       action="https://script.google.com/macros/s/AKfycby-K3uNTupDX8aGcMvsqtuRHiC29Kk1-Ry57go_EBz9iB5OQZbO/exec">
         <div class="text-centered form-elements">
+          <p style="font-family: Arial; font-style: italic; font-weight: bold;">
+            Please fill out the form below and we will Venmo request you!~~</p>
+            <p style="color: hotpink; font-weight: bold; font-size: x-large;">10% of proceeds go to Bernie!!</p>
           <div class="row">
             <div class="label-column column">
-              <label for="quantity" class=form-label>Quantity:</label>
+              <label for="shirts" class=form-label>Shirts ($39.99)</label>
             </div>
-            <div class="column">
-              <input name="quantity" id='q' onchange="calculateAmount()"
-                type="text" placeholder="Quantity" class="form-input" required>
+            <div class="total-column column">
+              <label for="S">S</label>
+              <input type="number" id="S" name="small" placeholder="Quantity" onchange="calculateAmount()">
+              <br>
+              <label for="M">M</label>
+              <input type="number" id="M" name="medium" placeholder="Quantity" onchange="calculateAmount()">
+              <br>
+              <label for="L">L</label>
+              <input type="number" id="L" name="large" placeholder="Quantity" onchange="calculateAmount()">
+              <br>
+              <br>
             </div>
           </div>
           <div class="row">
             <div class="label-column column">
-              <label class="aside" for="withPillow">
-                With Pillow? (+29.99$) Pillow case alone fits two regular-sized pillows
+              <label for="cases" class='form-label'>Pillow Case ($39.99) Quantity:</label>
+            </div>
+            <div class="column">
+              <input name="cases" id='c' onchange="calculateAmount()"
+                type="number" placeholder="Quantity" class="form-input" required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="label-column column">
+              <label for="pillows" class='form-label'>
+                Body Pillows ($29.99) Quantity: <br> Pillow cases fit one body pillow or two typical pillows.
               </label>
             </div>
             <div class="column">
-              <input id='withP' name="withPillow" onchange="calculateAmount()"
-                type="checkbox" class="form-input">
+              <input id='p' name="pillows" onchange="calculateAmount()"
+                type="number" placeholder="Quantity" class="form-input">
             </div>
           </div>
           <div class="row">
@@ -107,15 +127,31 @@
           </div>
           <div class="row">
             <div class="label-column column">
+              <p>Order:</p>
+            </div>
+            <div class="padded total-column column">
+              <input id="order" name="order" readonly></input>
+            </div>
+          </div>
+          <div class="row">
+            <div class="label-column column">
+              <p>Tax:</p>
+            </div>
+            <div class="padded total-column column">
+              <input id="tax" name="tax" readonly></input>
+            </div>
+          </div>
+          <div class="row">
+            <div class="label-column column">
               <p>Total:</p>
             </div>
-            <div class="padded label-column column">
-              <input id="total" name="total" class ="total" readonly></input>
+            <div class="padded total-column column">
+              <input id="total" name="total" readonly></input>
             </div>
           </div>
           <input name="submit" type="submit" class="form-submit-button-3d_round_pink">
         </div>
-        <div style="display:none" class="thankyou_message">
+        <div style="display:none; text-align: center;" class="thankyou_message">
          <!-- You can customize the thankyou message by editing the code below -->
          <h2><em>Thanks</em> for placing an order!!
          </h2>
@@ -126,13 +162,16 @@
     </script>
     <script>
       function calculateAmount() {
-        var q = document.getElementById('q').value;
-        var p = 39.99;
-        if (document.getElementById('withP').checked) {
-          p = 69.98
-        }
+        var s = Math.round(document.getElementById('S').value);
+        s += Math.round(document.getElementById('M').value);
+        s += Math.round(document.getElementById('L').value);
+        var c = document.getElementById('c').value;
+        var p = document.getElementById('p').value;
+
         /*display the result*/
-        document.getElementById('total').value = q * p;
+        document.getElementById('order').value = (s*39.99) + (c*39.99) + (p * 29.99);
+        document.getElementById('tax').value = Math.round(((s*39.99*.085) + (((c*39.99) + (p*29.99))*.08875))*100)/100;
+        document.getElementById('total').value = Math.round(((s*39.99*1.085) + (((c*39.99) + (p*29.99))*1.08875))*100)/100;
   }
     </script>
   </body>
