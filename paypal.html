@@ -12,10 +12,10 @@
         <div class="text-centered form-elements">
           <p style="font-family: Arial; font-style: italic; font-weight: bold;">
             Please fill out the form below and we will request you on Paypal!~~</p>
-            <p style="color: hotpink; font-weight: bold; font-size: x-large;">A portion of all proceeds go to Bernie!!</p>
+            <p style="color: hotpink; font-weight: bold; font-size: x-large;">80% of profits go to Bernie!!</p>
           <div class="row">
             <div class="label-column column">
-              <label for="shirts" class=form-label>Shirts ($39.99)</label>
+              <label for="shirts" class=form-label>Shirts ($24.99)</label>
             </div>
             <div class="total-column column">
               <label for="S">S</label>
@@ -163,9 +163,9 @@
         var p = document.getElementById('p').value;
 
         /*display the result*/
-        document.getElementById('order').value = Math.round(((s*39.99) + (c*39.99) + (p * 69.99))*100)/100;
-        document.getElementById('tax').value = Math.round(((s*39.99*.085) + (((c*39.99) + (p*69.99))*.08875))*100)/100;
-        document.getElementById('total').value = Math.round(((s*39.99*1.085) + (((c*39.99) + (p*69.99))*1.08875))*100)/100;
+        document.getElementById('order').value = Math.round(((s*24.99) + (c*39.99) + (p * 69.99))*100)/100;
+        document.getElementById('tax').value = Math.round(((s*24.99*.085) + (((c*39.99) + (p*69.99))*.08875))*100)/100;
+        document.getElementById('total').value = Math.round(((s*24.99*1.085) + (((c*39.99) + (p*69.99))*1.08875))*100)/100;
   }
     </script>
   </body>
