@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Animated Dog</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="info">
+        <div id="dog-name-display" class="clickable-name"></div>
+    </div>
+    
+    <div id="hat-selector">
+        <div class="hat-options">
+            <button class="hat-btn" data-hat="none">No Hat</button>
+            <button class="hat-btn" id="open-hat-maker">Make Custom Hat</button>
+            <button class="hat-btn danger" id="clear-saved-hats">Clear All Hats</button>
+            <div id="saved-hats-container">
+                <!-- Saved hats will appear here -->
+            </div>
+        </div>
+    </div>
+    
+    <div id="container"></div>
+    
+    <!-- Hat Maker Modal -->
+    <div id="hat-maker-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Hat Maker</h2>
+            
+            <div class="hat-maker-layout">
+                <div class="shape-palette">
+                    <h3>Shapes</h3>
+                    <div class="shape-buttons">
+                        <button class="shape-btn" data-shape="cone">
+                            <div style="width:40px;height:40px;background:#FF5722;border-radius:50% 50% 0 0;"></div>
+                            <span>Cone</span>
+                        </button>
+                        <button class="shape-btn" data-shape="cylinder">
+                            <div style="width:40px;height:40px;background:#2196F3;border-radius:20px;"></div>
+                            <span>Cylinder</span>
+                        </button>
+                        <button class="shape-btn" data-shape="sphere">
+                            <div style="width:40px;height:40px;background:#4CAF50;border-radius:50%;"></div>
+                            <span>Sphere</span>
+                        </button>
+                        <button class="shape-btn" data-shape="box">
+                            <div style="width:40px;height:40px;background:#9C27B0;"></div>
+                            <span>Box</span>
+                        </button>
+                        <button class="shape-btn" data-shape="pyramid">
+                            <div style="width:40px;height:40px;background:#E91E63;clip-path:polygon(50% 0%, 0% 100%, 100% 100%);"></div>
+                            <span>Pyramid</span>
+                        </button>
+                        <button class="shape-btn" data-shape="star">
+                            <div style="width:40px;height:40px;background:#FFEB3B;clip-path:polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);"></div>
+                            <span>Star</span>
+                        </button>
+                        <button class="shape-btn" data-shape="ring">
+                            <div style="width:40px;height:40px;background:#00BCD4;border-radius:50%;border:15px solid #00BCD4;box-sizing:border-box;"></div>
+                            <span>Ring</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="hat-preview-container"></div>
+                
+                <div class="shape-properties">
+                    <h3>Properties</h3>
+                    <div class="property-section">
+                        <h4>Color</h4>
+                        <input type="color" id="shape-color" value="#ff0000">
+                    </div>
+                    
+                    <div class="property-section">
+                        <h4>Rotation</h4>
+                        <div id="rotation-control-container">
+                            <div id="rotation-control">
+                                <div id="rotation-handle"></div>
+                            </div>
+                            <button id="reset-rotation">Reset</button>
+                        </div>
+                    </div>
+                    
+                    <div class="property-section" id="dimension-controls">
+                        <h4>Dimensions</h4>
+                        <!-- Dynamic dimension controls will be added here -->
+                        <div id="dimension-sliders">
+                            <!-- Sliders will be added dynamically based on the selected shape -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hat-maker-footer">
+                <div class="shape-list">
+                    <h3>Current Shapes</h3>
+                    <ul id="shape-list">
+                        <!-- Shapes will be listed here -->
+                    </ul>
+                </div>
+                
+                <div class="hat-actions">
+                    <button id="delete-selected">Delete Selected</button>
+                    <button id="clear-hat">Clear All</button>
+                    <button id="save-hat">Save Hat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Save Hat Modal -->
+    <div id="save-hat-modal" class="modal">
+        <div class="modal-content save-modal-content">
+            <span class="close-save-modal">&times;</span>
+            <h2 id="save-hat-title">Save Your Hat</h2>
+            <div>
+                <label for="hat-name">Hat Name:</label>
+                <input type="text" id="hat-name" placeholder="My Awesome Hat">
+            </div>
+            <button id="confirm-save">Save</button>
+        </div>
+    </div>
+
+    <!-- Pet Selection Modal -->
+    <div id="pet-selection-modal" class="modal-base">
+        <div class="pet-selection-content">
+            <h2 class="pet-selection-title">Choose Your Pet</h2>
+            
+            <div class="pet-options">
+                <div class="pet-option" data-pet-type="dog">
+                    <img src="images/dog-silhouette.png" alt="Dog">
+                    <div class="pet-option-name">Dog</div>
+                </div>
+                <div class="pet-option" data-pet-type="cat">
+                    <img src="images/cat-silhouette.png" alt="Cat">
+                    <div class="pet-option-name">Cat</div>
+                </div>
+            </div>
+            
+            <div class="pet-name-input">
+                <label for="initial-pet-name">Name your pet:</label>
+                <input type="text" id="initial-pet-name" class="form-input" placeholder="Enter pet name">
+            </div>
+            
+            <div class="color-selection">
+                <h3>Choose a color:</h3>
+                <div class="color-control">
+                    <label for="initial-pet-color">Color:</label>
+                    <input type="color" id="initial-pet-color" value="#8B4513">
+                </div>
+            </div>
+            
+            <button id="continue-with-pet" class="continue-button" disabled>Continue</button>
+        </div>
+    </div>
+
+    <!-- Dog Customization Modal -->
+    <div id="dog-customization-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-dog-modal">&times;</span>
+            <h2>Customize Your Dog</h2>
+            
+            <div class="customization-layout">
+                <div id="dog-preview-container"></div>
+                
+                <div class="customization-controls">
+                    <div class="name-section">
+                        <label for="dog-name-input">Name:</label>
+                        <input type="text" id="dog-name-input" placeholder="Enter dog's name">
+                    </div>
+                    
+                    <div class="color-section">
+                        <h3>Colors</h3>
+                        
+                        <div class="color-control">
+                            <label for="body-color">Body:</label>
+                            <input type="color" id="body-color">
+                            <div class="color-presets">
+                                <button class="color-preset" style="background-color: #B36B35;" data-color="#B36B35" data-target="body-color"></button>
+                                <button class="color-preset" style="background-color: #D2B48C;" data-color="#D2B48C" data-target="body-color"></button>
+                                <button class="color-preset" style="background-color: #8B4513;" data-color="#8B4513" data-target="body-color"></button>
+                            </div>
+                        </div>
+                        
+                        <div class="color-control">
+                            <label for="head-color">Head:</label>
+                            <input type="color" id="head-color">
+                            <div class="color-presets">
+                                <button class="color-preset" style="background-color: #B36B35;" data-color="#B36B35" data-target="head-color"></button>
+                                <button class="color-preset" style="background-color: #A0522D;" data-color="#A0522D" data-target="head-color"></button>
+                                <button class="color-preset" style="background-color: #D2B48C;" data-color="#D2B48C" data-target="head-color"></button>
+                            </div>
+                        </div>
+                        
+                        <div class="color-control">
+                            <label for="left-leg-color">Left Leg:</label>
+                            <input type="color" id="left-leg-color">
+                        </div>
+                        
+                        <div class="color-control">
+                            <label for="right-leg-color">Right Leg:</label>
+                            <input type="color" id="right-leg-color">
+                        </div>
+                        
+                        <div class="color-control">
+                            <label for="tongue-color">Tongue:</label>
+                            <input type="color" id="tongue-color">
+                        </div>
+                        
+                        <div class="color-control">
+                            <label for="eyes-color">Eyes:</label>
+                            <input type="color" id="eyes-color">
+                        </div>
+                        
+                        <div class="color-schemes">
+                            <h4>Color Schemes</h4>
+                            <button class="scheme-btn" data-scheme="classic">Classic</button>
+                            <button class="scheme-btn" data-scheme="golden">Golden</button>
+                            <button class="scheme-btn" data-scheme="dalmatian">Dalmatian</button>
+                            <button class="scheme-btn" data-scheme="husky">Husky</button>
+                        </div>
+                    </div>
+                    
+                    <button id="save-dog-customization">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <!-- OrbitControls for camera control -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <!-- GLTFLoader for loading 3D models -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+    <!-- GSAP for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <!-- DragControls for shape manipulation -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/DragControls.js"></script>
+    <!-- BufferGeometryUtils for merging geometries -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/utils/BufferGeometryUtils.js"></script>
+    <!-- Our script -->
+    <script src="script.js"></script>
+</body>
+</html> 
