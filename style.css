@@ -614,10 +614,10 @@ input[type="text"] {
 }
 
 #dog-name-display {
-    font-size: 24px;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
     font-weight: bold;
-    margin-top: 10px;
-    color: #333;
+    cursor: pointer;
 }
 
 /* Make the pet customization modal non-dismissible */
@@ -628,17 +628,14 @@ input[type="text"] {
 /* Add these styles to your existing CSS */
 
 .clickable-name {
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 24px;
     color: white;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    padding: 10px;
-    transition: transform 0.2s;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    font-weight: bold;
+    cursor: pointer;
 }
 
 .clickable-name:hover {
-    transform: scale(1.1);
+    text-decoration: underline;
 }
 
 .customization-layout {

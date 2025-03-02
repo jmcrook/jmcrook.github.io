@@ -62,24 +62,8 @@ loader.load(
         // Position the dog
         dog.position.y = 0;
         
-        // Check if we need to use default golden colors
-        if (!localStorage.getItem('dogCustomization')) {
-            // Set default golden colors
-            dogColors = {
-                body: '#D2B48C', // Tan
-                head: '#D2B48C',
-                ears: '#D2B48C',
-                leftLeg: '#A0522D', // Sienna
-                rightLeg: '#A0522D',
-                tail: '#D2B48C',
-                paws: '#A0522D',
-                tongue: '#FF6B6B', // Lighter red
-                eyes: '#000000'
-            };
-        }
-        
         // Apply custom colors to the dog model
-        updateMainDogColors();
+        updateDogColors(dog, dogColors);
         
         // Update the UI with the dog's name
         updateDogNameInUI();
@@ -143,13 +127,13 @@ let cameraKeyStates = {
 
 // Camera control settings
 let cameraOrbitSpeed = 0.06; // Doubled from 0.03
-let cameraHeightSpeed = 0.1; // Doubled from 0.05
+let cameraHeightSpeed = 0.15; // Increased from 0.1
 let cameraMinHeight = 0.3; // Minimum height (dog's eye level)
-let cameraMaxHeight = 10; // Maximum height
+let cameraMaxHeight = 15; // Increased from 10
 let cameraMinDistance = 0.1; // Minimum distance from dog (almost POV)
 let cameraMaxDistance = 15; // Maximum distance from dog
 let cameraHeightFactor = 0.2; // How much height changes with up/down
-let cameraDistanceFactor = 0.8; // How much distance changes with up/down
+let cameraDistanceFactor = 1.0; // Increased from 0.8 for more dramatic distance change
 
 // Add a variable to store the camera's relative position to the dog
 let cameraRelativePosition = new THREE.Vector3(0, 2, 5); // Default camera position relative to dog
@@ -203,106 +187,78 @@ ground.rotation.x = -Math.PI / 2; // Rotate to be horizontal
 ground.receiveShadow = true;
 scene.add(ground);
 
-// Add this function to set up the rotation control
-function setupRotationControl() {
-    const rotationControl = document.getElementById('rotation-control');
-    const rotationHandle = document.getElementById('rotation-handle');
-    const resetButton = document.getElementById('reset-rotation');
+// Create the giant tree
+const giantTree = createGiantTree();
+
+// Add this after the ground creation code but before the animation setup
+// Create a giant tree in the middle of the map
+function createGiantTree() {
+    // Create the tree trunk
+    const trunkGeometry = new THREE.CylinderGeometry(2, 2.5, 15, 16);
+    const trunkMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x8B4513, // Brown color for trunk
+        roughness: 0.9,
+        metalness: 0.1
+    });
+    const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+    // Offset the tree position so the dog doesn't spawn inside it
+    trunk.position.set(-15, 7.5, -15); // Moved to -15, 7.5, -15 instead of 0, 7.5, 0
+    trunk.castShadow = true;
+    trunk.receiveShadow = true;
+    scene.add(trunk);
     
-    let isDragging = false;
-    let centerX = rotationControl.offsetWidth / 2;
-    let centerY = rotationControl.offsetHeight / 2;
+    // Create the tree foliage (multiple layers for a more interesting look)
+    const foliageMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x2E8B57, // Sea green color for leaves
+        roughness: 0.8,
+        metalness: 0.1
+    });
     
-    // Set initial handle position to center (neutral position)
-    rotationHandle.style.transform = `translate(0px, 0px)`;
+    // Bottom layer (largest)
+    const foliageGeometry1 = new THREE.ConeGeometry(10, 12, 16);
+    const foliage1 = new THREE.Mesh(foliageGeometry1, foliageMaterial);
+    foliage1.position.set(-15, 12, -15); // Updated position to match trunk
+    foliage1.castShadow = true;
+    scene.add(foliage1);
     
-    // Function to update handle position
-    function updateHandlePosition(angleX, angleY) {
-        // Convert angles to position within the square control area
-        // Use a square boundary instead of a circle
-        const maxDistance = rotationControl.offsetWidth * 0.4; // 80% of half the control width
+    // Middle layer
+    const foliageGeometry2 = new THREE.ConeGeometry(8, 10, 16);
+    const foliage2 = new THREE.Mesh(foliageGeometry2, foliageMaterial);
+    foliage2.position.set(-15, 16, -15); // Updated position to match trunk
+    foliage2.castShadow = true;
+    scene.add(foliage2);
+    
+    // Top layer (smallest)
+    const foliageGeometry3 = new THREE.ConeGeometry(5, 8, 16);
+    const foliage3 = new THREE.Mesh(foliageGeometry3, foliageMaterial);
+    foliage3.position.set(-15, 20, -15); // Updated position to match trunk
+    foliage3.castShadow = true;
+    scene.add(foliage3);
+    
+    // Add some random small branches to make the tree more interesting
+    for (let i = 0; i < 12; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = 1.8 + Math.random() * 0.5;
+        const height = 5 + Math.random() * 10;
         
-        // Limit the handle movement to a square
-        const x = Math.max(-maxDistance, Math.min(maxDistance, maxDistance * angleY / (Math.PI/2)));
-        const y = Math.max(-maxDistance, Math.min(maxDistance, maxDistance * angleX / (Math.PI/2)));
+        const branchGeometry = new THREE.CylinderGeometry(0.2, 0.3, 3 + Math.random() * 2, 8);
+        const branch = new THREE.Mesh(branchGeometry, trunkMaterial);
         
-        // Update handle position
-        rotationHandle.style.transform = `translate(${x}px, ${y}px)`;
+        // Position around the trunk (adjusted for new trunk position)
+        branch.position.x = -15 + Math.cos(angle) * radius;
+        branch.position.y = height;
+        branch.position.z = -15 + Math.sin(angle) * radius;
         
-        // Update the selected shape if there is one
-        if (selectedShape) {
-            selectedShape.mesh.rotation.x = angleX;
-            selectedShape.mesh.rotation.y = angleY;
-            selectedShape.rotation.x = angleX;
-            selectedShape.rotation.y = angleY;
-        }
+        // Rotate to point outward from trunk
+        branch.rotation.z = Math.PI / 2 - angle;
+        branch.rotation.y = Math.random() * Math.PI / 4;
+        
+        branch.castShadow = true;
+        scene.add(branch);
     }
     
-    // Handle mouse down on the rotation control
-    rotationControl.addEventListener('mousedown', function(e) {
-        isDragging = true;
-        rotationControl.style.cursor = 'grabbing';
-        
-        // Calculate position relative to center
-        const rect = rotationControl.getBoundingClientRect();
-        centerX = rect.width / 2;
-        centerY = rect.height / 2;
-        
-        const mouseX = e.clientX - rect.left - centerX;
-        const mouseY = e.clientY - rect.top - centerY;
-        
-        // Convert position to angles (scaled to appropriate range)
-        const maxDistance = rotationControl.offsetWidth * 0.4;
-        const angleX = (mouseY / maxDistance) * (Math.PI/2);
-        const angleY = (mouseX / maxDistance) * (Math.PI/2);
-        
-        updateHandlePosition(angleX, angleY);
-        
-        e.preventDefault();
-    });
-    
-    // Handle mouse move
-    document.addEventListener('mousemove', function(e) {
-        if (!isDragging) return;
-        
-        const rect = rotationControl.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left - centerX;
-        const mouseY = e.clientY - rect.top - centerY;
-        
-        // Convert position to angles (scaled to appropriate range)
-        const maxDistance = rotationControl.offsetWidth * 0.4;
-        const angleX = (mouseY / maxDistance) * (Math.PI/2);
-        const angleY = (mouseX / maxDistance) * (Math.PI/2);
-        
-        updateHandlePosition(angleX, angleY);
-    });
-    
-    // Handle mouse up
-    document.addEventListener('mouseup', function() {
-        if (isDragging) {
-            isDragging = false;
-            rotationControl.style.cursor = 'pointer';
-        }
-    });
-    
-    // Reset rotation button
-    resetButton.addEventListener('click', function() {
-        updateHandlePosition(0, 0);
-        
-        if (selectedShape) {
-            selectedShape.mesh.rotation.set(0, 0, 0);
-            selectedShape.rotation = { x: 0, y: 0, z: 0 };
-        }
-    });
-    
-    // Update the rotation control when a shape is selected
-    document.addEventListener('shape-selected', function() {
-        if (selectedShape) {
-            updateHandlePosition(selectedShape.rotation.x, selectedShape.rotation.y);
-        } else {
-            updateHandlePosition(0, 0);
-        }
-    });
+    // Return the tree parts as a group
+    return { trunk, foliage1, foliage2, foliage3 };
 }
 
 // Initialize the hat maker
@@ -340,13 +296,6 @@ function initHatMaker() {
     hatMakerControls.dampingFactor = 0.05;
     hatMakerControls.target.set(0, 1.2, 0); // Increased Y target to 1.2 for top of head
     
-    // Limit the controls to match the main world
-    hatMakerControls.enablePan = false; // Disable panning
-    hatMakerControls.minDistance = 2; // Minimum zoom distance
-    hatMakerControls.maxDistance = 5; // Maximum zoom distance
-    hatMakerControls.minPolarAngle = Math.PI/6; // Limit how high the camera can go
-    hatMakerControls.maxPolarAngle = Math.PI/2; // Limit how low the camera can go
-    
     // Add lights
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     hatMakerScene.add(ambientLight);
@@ -356,68 +305,14 @@ function initHatMaker() {
     directionalLight.castShadow = true;
     hatMakerScene.add(directionalLight);
     
-    // Create a procedural grass texture for the hat maker scene
-    const hatMakerCanvas = document.createElement('canvas');
-    hatMakerCanvas.width = 512;
-    hatMakerCanvas.height = 512;
-    const hatMakerContext = hatMakerCanvas.getContext('2d');
-
-    // Fill with base grass color
-    hatMakerContext.fillStyle = '#4CAF50';
-    hatMakerContext.fillRect(0, 0, hatMakerCanvas.width, hatMakerCanvas.height);
-
-    // Add some variation to make it look more like grass
-    for (let i = 0; i < 5000; i++) {
-        const x = Math.random() * hatMakerCanvas.width;
-        const y = Math.random() * hatMakerCanvas.height;
-        const size = 1 + Math.random() * 2;
-        
-        // Vary the green shades
-        const r = 50 + Math.random() * 30;
-        const g = 150 + Math.random() * 50;
-        const b = 30 + Math.random() * 40;
-        
-        hatMakerContext.fillStyle = `rgb(${r}, ${g}, ${b})`;
-        hatMakerContext.fillRect(x, y, size, size + Math.random() * 3);
-    }
-
-    // Create texture from canvas
-    const hatMakerGroundTexture = new THREE.CanvasTexture(hatMakerCanvas);
-    hatMakerGroundTexture.wrapS = THREE.RepeatWrapping;
-    hatMakerGroundTexture.wrapT = THREE.RepeatWrapping;
-    hatMakerGroundTexture.repeat.set(10, 10);
-    hatMakerGroundTexture.anisotropy = 16;
-
-    const hatMakerGroundGeometry = new THREE.PlaneGeometry(10, 10);
-    const hatMakerGroundMaterial = new THREE.MeshStandardMaterial({ 
-        map: hatMakerGroundTexture,
-        roughness: 0.9,
-        metalness: 0.1
-    });
-
-    const hatMakerGround = new THREE.Mesh(hatMakerGroundGeometry, hatMakerGroundMaterial);
-    hatMakerGround.rotation.x = -Math.PI / 2;
-    hatMakerGround.position.y = 0; // Set ground exactly at y=0
-    hatMakerGround.receiveShadow = true;
-    hatMakerScene.add(hatMakerGround);
-    
     // Add a transparent dog model
     addTransparentDogToHatMaker();
     
-    // Add a reference head for positioning
-    const headGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-    const headMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0xaaaaaa,
-        transparent: true,
-        opacity: 0.0, // Make it invisible
-        depthWrite: false
-    });
-    const head = new THREE.Mesh(headGeometry, headMaterial);
-    head.position.set(0, 1, 0);
-    hatMakerScene.add(head);
-    
-    // Initialize drag controls
+    // Set up drag controls
     setupDragControls();
+    
+    // Set up event listeners for the hat maker
+    setupHatMakerEvents(container);
     
     // Start animation loop
     animateHatMaker();
@@ -425,8 +320,7 @@ function initHatMaker() {
     // Ensure initial render
     hatMakerRenderer.render(hatMakerScene, hatMakerCamera);
     
-    // Set up the rotation control
-    setupRotationControl();
+    console.log('Hat maker initialized');
 }
 
 // Set up drag controls for the hat maker
@@ -510,46 +404,71 @@ function setupHatMakerEvents(container) {
 function addShape(shapeType) {
     console.log(`Adding shape: ${shapeType}`);
     
-    // Get the current color from the color picker
+    if (!shapeDefinitions[shapeType]) {
+        console.error('Unknown shape type:', shapeType);
+        return;
+    }
+    
     const color = document.getElementById('shape-color').value;
     
-    // Get default dimensions for this shape type
+    // Get default dimensions
     const dimensions = getDefaultDimensions(shapeType);
     
     // Create geometry based on shape type
     const geometry = createGeometryWithDimensions(shapeType, dimensions);
     
-    // Create material
-    const material = new THREE.MeshStandardMaterial({
+    if (!geometry) {
+        console.error('Failed to create geometry for shape type:', shapeType);
+        return;
+    }
+    
+    // Create material and mesh
+    const material = new THREE.MeshStandardMaterial({ 
         color: color,
         metalness: 0.3,
         roughness: 0.7
     });
     
-    // Create mesh
     const mesh = new THREE.Mesh(geometry, material);
     
-    // Set position (slightly above the center)
-    mesh.position.set(0, 1.5, 0);
+    // Set initial position - match the exact position used in the game
+    const posX = 0;
+    const posY = 1.2; // Position it at the top of the dog's head
+    const posZ = 0;
+    mesh.position.set(posX, posY, posZ);
+    
+    // Set fixed scale - no longer user adjustable
+    const defaultScale = 1.0;
+    mesh.scale.set(defaultScale, defaultScale, defaultScale);
+    
+    // Set neutral rotation
+    const rotX = 0;
+    const rotY = 0;
+    const rotZ = 0;
+    
+    mesh.rotation.set(rotX, rotY, rotZ);
+    
+    // Make sure the shape casts shadows
+    mesh.castShadow = true;
     
     // Add to scene
     hatMakerScene.add(mesh);
     
-    // Create shape info
+    // Create shape info object
     const shapeInfo = {
-        id: Date.now() + Math.random(),
+        id: Date.now(),
         type: shapeType,
         mesh: mesh,
         color: color,
-        position: { x: 0, y: 1.5, z: 0 },
-        rotation: { x: 0, y: 0, z: 0 },
+        position: { x: posX, y: posY, z: posZ },
+        rotation: { x: rotX, y: rotY, z: rotZ },
         dimensions: dimensions
     };
     
     // Add to shapes array
     hatShapes.push(shapeInfo);
     
-    // Update UI
+    // Update the shape list
     updateShapeList();
     
     // Select the new shape
@@ -558,81 +477,69 @@ function addShape(shapeType) {
     // Update drag controls
     setupDragControls();
     
-    console.log('Shape added');
+    console.log(`Shape added: ${shapeType}`, shapeInfo);
+    return shapeInfo;
 }
 
-// Function to get default dimensions for a shape
-function getDefaultDimensions(shapeType) {
-    switch(shapeType) {
-        case 'cone':
-            return { radius: 0.5, height: 1, segments: 32 };
-        case 'cylinder':
-            return { radius: 0.5, height: 1, segments: 32 };
-        case 'sphere':
-            return { radius: 0.5, widthSegments: 32, heightSegments: 32 };
-        case 'box':
-            return { width: 1, height: 1, depth: 1 };
-        case 'pyramid':
-            return { radius: 0.5, height: 1, segments: 4 };
-        case 'star':
-            return { outerRadius: 0.5, innerRadius: 0.2, points: 5 };
-        case 'ring':
-            return { radius: 0.5, tube: 0.1, radialSegments: 16, tubularSegments: 32 };
-        default:
-            return {};
+// Define shape configurations once
+const shapeDefinitions = {
+    'cone': {
+        createGeometry: (dims) => new THREE.ConeGeometry(dims.radius, dims.height, dims.segments),
+        defaultDimensions: { radius: 0.5, height: 1, segments: 32 },
+        controls: ['radius', 'height']
+    },
+    'cylinder': {
+        createGeometry: (dims) => new THREE.CylinderGeometry(dims.radius, dims.radius, dims.height, dims.segments),
+        defaultDimensions: { radius: 0.5, height: 1, segments: 32 },
+        controls: ['radius', 'height']
+    },
+    'sphere': {
+        createGeometry: (dims) => new THREE.SphereGeometry(dims.radius, dims.widthSegments, dims.heightSegments),
+        defaultDimensions: { radius: 0.5, widthSegments: 32, heightSegments: 32 },
+        controls: ['radius']
+    },
+    'box': {
+        createGeometry: (dims) => new THREE.BoxGeometry(dims.width, dims.height, dims.depth),
+        defaultDimensions: { width: 1, height: 1, depth: 1 },
+        controls: ['width', 'height', 'depth']
+    },
+    'torus': {
+        createGeometry: (dims) => new THREE.TorusGeometry(dims.radius, dims.tube, dims.radialSegments, dims.tubularSegments),
+        defaultDimensions: { radius: 0.5, tube: 0.2, radialSegments: 16, tubularSegments: 32 },
+        controls: ['radius', 'tube']
+    },
+    'pyramid': {
+        createGeometry: (dims) => new THREE.ConeGeometry(dims.radius, dims.height, 4),
+        defaultDimensions: { radius: 0.5, height: 1 },
+        controls: ['radius', 'height']
+    },
+    'ring': {
+        createGeometry: (dims) => new THREE.TorusGeometry(dims.radius, 0.1, dims.radialSegments, dims.tubularSegments),
+        defaultDimensions: { radius: 0.5, radialSegments: 16, tubularSegments: 32 },
+        controls: ['radius']
+    },
+    'star': {
+        createGeometry: (dims) => createStarGeometry(dims.outerRadius, dims.innerRadius, dims.points),
+        defaultDimensions: { outerRadius: 0.5, innerRadius: 0.2, points: 5 },
+        controls: ['outerRadius', 'innerRadius', 'points']
+    },
+    'heart': {
+        createGeometry: (dims) => createHeartGeometry(dims.size),
+        defaultDimensions: { size: 0.5 },
+        controls: ['size']
     }
-}
+};
 
-// Function to create geometry with specific dimensions
+// Use the definitions
 function createGeometryWithDimensions(shapeType, dimensions) {
-    switch(shapeType) {
-        case 'cone':
-            return new THREE.ConeGeometry(
-                dimensions.radius, 
-                dimensions.height, 
-                dimensions.segments
-            );
-        case 'cylinder':
-            return new THREE.CylinderGeometry(
-                dimensions.radius, 
-                dimensions.radius, 
-                dimensions.height, 
-                dimensions.segments
-            );
-        case 'sphere':
-            return new THREE.SphereGeometry(
-                dimensions.radius, 
-                dimensions.widthSegments, 
-                dimensions.heightSegments
-            );
-        case 'box':
-            return new THREE.BoxGeometry(
-                dimensions.width, 
-                dimensions.height, 
-                dimensions.depth
-            );
-        case 'pyramid':
-            return new THREE.ConeGeometry(
-                dimensions.radius, 
-                dimensions.height, 
-                dimensions.segments
-            );
-        case 'star':
-            return createStarGeometry(
-                dimensions.outerRadius, 
-                dimensions.innerRadius, 
-                dimensions.points
-            );
-        case 'ring':
-            return new THREE.TorusGeometry(
-                dimensions.radius, 
-                dimensions.tube, 
-                dimensions.radialSegments, 
-                dimensions.tubularSegments
-            );
-        default:
-            return null;
-    }
+    const definition = shapeDefinitions[shapeType];
+    if (!definition) return null;
+    
+    return definition.createGeometry(dimensions);
+}
+
+function getDefaultDimensions(shapeType) {
+    return shapeDefinitions[shapeType]?.defaultDimensions || {};
 }
 
 // Function to update a shape's dimensions
@@ -676,113 +583,18 @@ function updateShapeDimensions(shapeInfo, newDimensions) {
 // Function to create dimension sliders for a shape
 function createDimensionSliders(shapeInfo) {
     const container = document.getElementById('dimension-sliders');
-    container.innerHTML = ''; // Clear existing sliders
+    container.innerHTML = '';
     
     if (!shapeInfo) return;
     
+    const definition = shapeDefinitions[shapeInfo.type];
+    if (!definition) return;
+    
     const dimensions = shapeInfo.dimensions;
     
-    // Create sliders based on shape type
-    switch(shapeInfo.type) {
-        case 'cone':
-        case 'cylinder':
-            createSlider(container, 'radius', 'Radius', dimensions.radius, 0.1, 2, 0.1, (value) => {
-                dimensions.radius = parseFloat(value);
-                updateShapeDimensions(shapeInfo, dimensions);
-            });
-            createSlider(container, 'height', 'Height', dimensions.height, 0.1, 3, 0.1, (value) => {
-                dimensions.height = parseFloat(value);
-                updateShapeDimensions(shapeInfo, dimensions);
-            });
-            break;
-        case 'sphere':
-            createSlider(container, 'radius', 'Radius', dimensions.radius, 0.1, 2, 0.1, (value) => {
-                dimensions.radius = parseFloat(value);
-                updateShapeDimensions(shapeInfo, dimensions);
-            });
-            break;
-        case 'box':
-            createSlider(container, 'width', 'Width', dimensions.width, 0.1, 2, 0.1, (value) => {
-                dimensions.width = parseFloat(value);
-                updateShapeDimensions(shapeInfo, dimensions);
-            });
-            createSlider(container, 'height', 'Height', dimensions.height, 0.1, 2, 0.1, (value) => {
-                dimensions.height = parseFloat(value);
-                updateShapeDimensions(shapeInfo, dimensions);
-            });
-            createSlider(container, 'depth', 'Depth', dimensions.depth, 0.1, 2, 0.1, (value) => {
-                dimensions.depth = parseFloat(value);
-                updateShapeDimensions(shapeInfo, dimensions);
-            });
-            break;
-        case 'pyramid':
-            createSlider(container, 'radius', 'Base Size', dimensions.radius, 0.1, 2, 0.1, (value) => {
-                dimensions.radius = parseFloat(value);
-                updateShapeDimensions(shapeInfo, dimensions);
-            });
-            createSlider(container, 'height', 'Height', dimensions.height, 0.1, 3, 0.1, (value) => {
-                dimensions.height = parseFloat(value);
-                updateShapeDimensions(shapeInfo, dimensions);
-            });
-            break;
-        case 'star':
-            createSlider(container, 'outerRadius', 'Outer Radius', dimensions.outerRadius, 0.1, 2, 0.1, (value) => {
-                dimensions.outerRadius = parseFloat(value);
-                updateShapeDimensions(shapeInfo, dimensions);
-            });
-            createSlider(container, 'innerRadius', 'Inner Radius', dimensions.innerRadius, 0.05, 1, 0.05, (value) => {
-                dimensions.innerRadius = parseFloat(value);
-                updateShapeDimensions(shapeInfo, dimensions);
-            });
-            createSlider(container, 'points', 'Points', dimensions.points, 3, 12, 1, (value) => {
-                dimensions.points = parseInt(value);
-                updateShapeDimensions(shapeInfo, dimensions);
-            });
-            break;
-        case 'ring':
-            createSlider(container, 'radius', 'Radius', dimensions.radius, 0.1, 2, 0.1, (value) => {
-                dimensions.radius = parseFloat(value);
-                updateShapeDimensions(shapeInfo, dimensions);
-            });
-            createSlider(container, 'tube', 'Thickness', dimensions.tube, 0.01, 0.5, 0.01, (value) => {
-                dimensions.tube = parseFloat(value);
-                updateShapeDimensions(shapeInfo, dimensions);
-            });
-            break;
-    }
-}
-
-// Helper function to create a slider
-function createSlider(container, id, label, value, min, max, step, onChange) {
-    const sliderContainer = document.createElement('div');
-    sliderContainer.className = 'slider-control';
-    
-    const labelElement = document.createElement('label');
-    labelElement.htmlFor = `dim-${id}`;
-    labelElement.textContent = `${label}:`;
-    
-    const slider = document.createElement('input');
-    slider.type = 'range';
-    slider.id = `dim-${id}`;
-    slider.min = min;
-    slider.max = max;
-    slider.step = step;
-    slider.value = value;
-    
-    const valueDisplay = document.createElement('span');
-    valueDisplay.id = `dim-${id}-value`;
-    valueDisplay.textContent = value;
-    
-    slider.addEventListener('input', function() {
-        valueDisplay.textContent = this.value;
-        onChange(this.value);
+    definition.controls.forEach(controlName => {
+        // Create slider for each control...
     });
-    
-    sliderContainer.appendChild(labelElement);
-    sliderContainer.appendChild(slider);
-    sliderContainer.appendChild(valueDisplay);
-    
-    container.appendChild(sliderContainer);
 }
 
 // Function to select a shape
@@ -865,26 +677,7 @@ function updateSelectedShape() {
     
     // Update the mesh
     selectedShape.mesh.rotation.set(rotX, rotY, rotZ);
-    
-    // Make sure we're updating the material correctly
-    if (selectedShape.mesh.material) {
-        // Check if it's an array of materials or a single material
-        if (Array.isArray(selectedShape.mesh.material)) {
-            // Update all materials in the array
-            selectedShape.mesh.material.forEach(mat => {
-                mat.color.set(color);
-            });
-        } else {
-            // Update the single material
-            selectedShape.mesh.material.color.set(color);
-        }
-    }
-    
-    // Update the shape list to reflect the new color
-    updateShapeList();
-    
-    // Force a render update
-    hatMakerRenderer.render(hatMakerScene, hatMakerCamera);
+    selectedShape.mesh.material.color.set(color);
 }
 
 // Function to delete the selected shape
@@ -1387,9 +1180,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Open hat maker modal directly without password check
+    // Open hat maker modal without password check
     document.getElementById('open-hat-maker').addEventListener('click', function() {
-        openHatMaker();
+        openHatMaker(); // Directly open the hat maker without password check
     });
     
     // Close hat maker modal
@@ -1568,7 +1361,7 @@ window.addEventListener('resize', function () {
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// Animation loop
+// Separate animation concerns
 function animate() {
     requestAnimationFrame(animate);
     
@@ -1710,97 +1503,66 @@ function animate() {
         }
     }
     
-    // Handle camera movement with arrow keys
-    let cameraChanged = false;
-    
-    // Get current camera position relative to the dog
-    const dogPosition = dog ? dog.position.clone() : new THREE.Vector3(0, 0, 0);
-    
-    // Calculate the dog's movement vector
-    const dogMovement = new THREE.Vector3().subVectors(dogPosition, dogPreviousPosition);
-    
-    // Update camera relative position based on arrow keys
-    if (cameraKeyStates.ArrowLeft) {
-        // Orbit left around the dog
-        const angle = cameraOrbitSpeed;
-        const cosAngle = Math.cos(angle);
-        const sinAngle = Math.sin(angle);
-        
-        // Rotate the relative position around the Y axis
-        const x = cameraRelativePosition.x * cosAngle - cameraRelativePosition.z * sinAngle;
-        const z = cameraRelativePosition.x * sinAngle + cameraRelativePosition.z * cosAngle;
-        
-        cameraRelativePosition.x = x;
-        cameraRelativePosition.z = z;
-        
-        cameraChanged = true;
-    }
-    if (cameraKeyStates.ArrowRight) {
-        // Orbit right around the dog
-        const angle = -cameraOrbitSpeed;
-        const cosAngle = Math.cos(angle);
-        const sinAngle = Math.sin(angle);
-        
-        // Rotate the relative position around the Y axis
-        const x = cameraRelativePosition.x * cosAngle - cameraRelativePosition.z * sinAngle;
-        const z = cameraRelativePosition.x * sinAngle + cameraRelativePosition.z * cosAngle;
-        
-        cameraRelativePosition.x = x;
-        cameraRelativePosition.z = z;
-        
-        cameraChanged = true;
-    }
-    if (cameraKeyStates.ArrowUp) {
-        // Move camera closer and higher
-        cameraRelativePosition.y = Math.max(cameraMinHeight, cameraRelativePosition.y - cameraHeightSpeed * cameraHeightFactor);
-        
-        // Calculate distance in XZ plane
-        const horizontalDistance = Math.sqrt(cameraRelativePosition.x * cameraRelativePosition.x + cameraRelativePosition.z * cameraRelativePosition.z);
-        
-        // Reduce distance while maintaining direction
-        const newDistance = Math.max(cameraMinDistance, horizontalDistance - cameraHeightSpeed * cameraDistanceFactor);
-        const factor = newDistance / horizontalDistance;
-        
-        cameraRelativePosition.x *= factor;
-        cameraRelativePosition.z *= factor;
-        
-        cameraChanged = true;
-    }
-    if (cameraKeyStates.ArrowDown) {
-        // Move camera farther and lower
-        cameraRelativePosition.y = Math.min(cameraMaxHeight, cameraRelativePosition.y + cameraHeightSpeed * cameraHeightFactor);
-        
-        // Calculate distance in XZ plane
-        const horizontalDistance = Math.sqrt(cameraRelativePosition.x * cameraRelativePosition.x + cameraRelativePosition.z * cameraRelativePosition.z);
-        
-        // Increase distance while maintaining direction
-        const newDistance = Math.min(cameraMaxDistance, horizontalDistance + cameraHeightSpeed * cameraDistanceFactor);
-        const factor = newDistance / horizontalDistance;
-        
-        cameraRelativePosition.x *= factor;
-        cameraRelativePosition.z *= factor;
-        
-        cameraChanged = true;
-    }
-    
-    // Always update camera position to follow the dog
+    // Handle camera controls with arrow keys
     if (dog) {
+        // Update camera relative position based on arrow keys
+        if (cameraKeyStates.ArrowLeft) {
+            // Orbit left around the dog
+            cameraRelativePosition.applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraOrbitSpeed);
+        }
+        if (cameraKeyStates.ArrowRight) {
+            // Orbit right around the dog
+            cameraRelativePosition.applyAxisAngle(new THREE.Vector3(0, 1, 0), -cameraOrbitSpeed);
+        }
+        if (cameraKeyStates.ArrowUp) {
+            // Move camera DOWN and CLOSER to the dog with increased speed
+            cameraRelativePosition.y -= cameraHeightSpeed * 1.5; // Apply the same multiplier as down arrow
+            
+            // Adjust distance to bring camera closer with more dramatic effect
+            const horizontalDistance = Math.sqrt(
+                cameraRelativePosition.x * cameraRelativePosition.x + 
+                cameraRelativePosition.z * cameraRelativePosition.z
+            );
+            
+            const factor = 1 - cameraDistanceFactor * cameraHeightSpeed / Math.max(0.1, horizontalDistance);
+            cameraRelativePosition.x *= factor;
+            cameraRelativePosition.z *= factor;
+            
+            // Clamp the height to prevent going too low
+            cameraRelativePosition.y = Math.max(cameraMinHeight, cameraRelativePosition.y);
+        }
+        if (cameraKeyStates.ArrowDown) {
+            // Move camera UP and FARTHER from the dog with increased height gain
+            cameraRelativePosition.y += cameraHeightSpeed * 1.5; // Apply a multiplier for faster upward movement
+            
+            // Adjust distance to move camera farther
+            const factor = 1 + cameraDistanceFactor * cameraHeightSpeed / 
+                Math.sqrt(cameraRelativePosition.x * cameraRelativePosition.x + cameraRelativePosition.z * cameraRelativePosition.z);
+            cameraRelativePosition.x *= factor;
+            cameraRelativePosition.z *= factor;
+            
+            // Clamp the height and distance with increased maximum height
+            cameraRelativePosition.y = Math.min(cameraMaxHeight, cameraRelativePosition.y);
+            const distance = cameraRelativePosition.length();
+            if (distance > cameraMaxDistance) {
+                cameraRelativePosition.multiplyScalar(cameraMaxDistance / distance);
+            }
+        }
+        
         // Set camera position relative to dog
-        camera.position.copy(dogPosition).add(cameraRelativePosition);
+        camera.position.copy(dog.position).add(cameraRelativePosition);
         
         // Make camera look at the dog (slightly above the dog's position)
-        camera.lookAt(dogPosition.x, dogPosition.y + 0.5, dogPosition.z);
+        camera.lookAt(dog.position.x, dog.position.y + 0.5, dog.position.z);
         
         // Update orbit controls target
-        controls.target.set(dogPosition.x, dogPosition.y + 0.5, dogPosition.z);
+        controls.target.set(dog.position.x, dog.position.y + 0.5, dog.position.z);
     }
     
     controls.update();
     
     renderer.render(scene, camera);
 }
-
-animate();
 
 // Add the missing animateHatMaker function
 function animateHatMaker() {
@@ -2119,148 +1881,44 @@ function debugHatPosition() {
     }
 }
 
-// Add keyboard event listeners for camera control
-document.addEventListener('keydown', function(event) {
-    // Check if hat maker is open
-    const hatMakerOpen = document.getElementById('hat-maker-modal').style.display === 'block';
+// Consolidate keyboard event handling
+function setupKeyboardControls() {
+    const keyHandlers = {
+        'keydown': {
+            'w': () => keyStates.w = true,
+            'a': () => keyStates.a = true,
+            's': () => keyStates.s = true,
+            'd': () => keyStates.d = true,
+            'ArrowUp': (e) => { cameraKeyStates.ArrowUp = true; e.preventDefault(); },
+            'ArrowDown': (e) => { cameraKeyStates.ArrowDown = true; e.preventDefault(); },
+            'ArrowLeft': (e) => { cameraKeyStates.ArrowLeft = true; e.preventDefault(); },
+            'ArrowRight': (e) => { cameraKeyStates.ArrowRight = true; e.preventDefault(); },
+            'Space': () => makeModelJump()
+        },
+        'keyup': {
+            'w': () => keyStates.w = false,
+            'a': () => keyStates.a = false,
+            's': () => keyStates.s = false,
+            'd': () => keyStates.d = false,
+            'ArrowUp': () => cameraKeyStates.ArrowUp = false,
+            'ArrowDown': () => cameraKeyStates.ArrowDown = false,
+            'ArrowLeft': () => cameraKeyStates.ArrowLeft = false,
+            'ArrowRight': () => cameraKeyStates.ArrowRight = false
+        }
+    };
     
-    if (hatMakerOpen) {
-        // Control the hat maker camera when hat maker is open
-        switch(event.key) {
-            case 'ArrowUp':
-                // Move camera higher and closer to hat
-                hatMakerCamera.position.y += 0.1;
-                hatMakerCamera.position.z -= 0.1;
-                hatMakerControls.update();
-                event.preventDefault();
-                break;
-            case 'ArrowDown':
-                // Move camera lower and further from hat
-                hatMakerCamera.position.y -= 0.1;
-                hatMakerCamera.position.z += 0.1;
-                hatMakerControls.update();
-                event.preventDefault();
-                break;
-            case 'ArrowLeft':
-                // Orbit left around the hat
-                const leftAngle = 0.1;
-                const currentPosLeft = new THREE.Vector3().subVectors(
-                    hatMakerCamera.position,
-                    new THREE.Vector3(0, hatMakerControls.target.y, 0)
-                );
-                const newPosLeft = new THREE.Vector3(
-                    currentPosLeft.x * Math.cos(leftAngle) - currentPosLeft.z * Math.sin(leftAngle),
-                    currentPosLeft.y,
-                    currentPosLeft.x * Math.sin(leftAngle) + currentPosLeft.z * Math.cos(leftAngle)
-                );
-                hatMakerCamera.position.set(
-                    newPosLeft.x,
-                    newPosLeft.y,
-                    newPosLeft.z
-                );
-                hatMakerControls.update();
-                event.preventDefault();
-                break;
-            case 'ArrowRight':
-                // Orbit right around the hat
-                const rightAngle = -0.1;
-                const currentPosRight = new THREE.Vector3().subVectors(
-                    hatMakerCamera.position,
-                    new THREE.Vector3(0, hatMakerControls.target.y, 0)
-                );
-                const newPosRight = new THREE.Vector3(
-                    currentPosRight.x * Math.cos(rightAngle) - currentPosRight.z * Math.sin(rightAngle),
-                    currentPosRight.y,
-                    currentPosRight.x * Math.sin(rightAngle) + currentPosRight.z * Math.cos(rightAngle)
-                );
-                hatMakerCamera.position.set(
-                    newPosRight.x,
-                    newPosRight.y,
-                    newPosRight.z
-                );
-                hatMakerControls.update();
-                event.preventDefault();
-                break;
-        }
-    } else {
-        // Only control the main world camera if hat maker is not open
-        // WASD controls for dog movement
-        switch(event.key.toLowerCase()) {
-            case 'w':
-                keyStates.w = true;
-                break;
-            case 'a':
-                keyStates.a = true;
-                break;
-            case 's':
-                keyStates.s = true;
-                break;
-            case 'd':
-                keyStates.d = true;
-                break;
-        }
-        
-        // Arrow keys for camera control
-        switch(event.key) {
-            case 'ArrowUp':
-                cameraKeyStates.ArrowUp = true;
-                event.preventDefault(); // Prevent page scrolling
-                break;
-            case 'ArrowDown':
-                cameraKeyStates.ArrowDown = true;
-                event.preventDefault(); // Prevent page scrolling
-                break;
-            case 'ArrowLeft':
-                cameraKeyStates.ArrowLeft = true;
-                event.preventDefault(); // Prevent page scrolling
-                break;
-            case 'ArrowRight':
-                cameraKeyStates.ArrowRight = true;
-                event.preventDefault(); // Prevent page scrolling
-                break;
-        }
-    }
-});
-
-document.addEventListener('keyup', function(event) {
-    // Check if hat maker is open
-    const hatMakerOpen = document.getElementById('hat-maker-modal').style.display === 'block';
-    
-    // Only control the main world camera if hat maker is not open
-    if (!hatMakerOpen) {
-        // WASD controls for dog movement
-        switch(event.key.toLowerCase()) {
-            case 'w':
-                keyStates.w = false;
-                break;
-            case 'a':
-                keyStates.a = false;
-                break;
-            case 's':
-                keyStates.s = false;
-                break;
-            case 'd':
-                keyStates.d = false;
-                break;
-        }
-        
-        // Arrow keys for camera control
-        switch(event.key) {
-            case 'ArrowUp':
-                cameraKeyStates.ArrowUp = false;
-                break;
-            case 'ArrowDown':
-                cameraKeyStates.ArrowDown = false;
-                break;
-            case 'ArrowLeft':
-                cameraKeyStates.ArrowLeft = false;
-                break;
-            case 'ArrowRight':
-                cameraKeyStates.ArrowRight = false;
-                break;
-        }
-    }
-});
+    ['keydown', 'keyup'].forEach(eventType => {
+        document.addEventListener(eventType, function(event) {
+            // Skip if hat maker is open
+            if (document.getElementById('hat-maker-modal').style.display === 'block') return;
+            
+            const key = event.key.toLowerCase();
+            const handler = keyHandlers[eventType][key] || keyHandlers[eventType][event.key];
+            
+            if (handler) handler(event);
+        });
+    });
+}
 
 // Add these variables near the top of your script with the other variables
 let dogCustomized = false;
@@ -2967,153 +2625,483 @@ function animateDogPreview() {
     }
 }
 
-// Function to open the hat maker
-function openHatMaker() {
-    console.log('Opening hat maker modal');
-    document.getElementById('hat-maker-modal').style.display = 'block';
+// Add this after the other variable declarations
+let hatMakerPasswordChecked = true; // Changed from false to true to bypass password check
+
+// Modify the event listener for opening the hat maker
+document.addEventListener('DOMContentLoaded', function() {
+    // ... existing code ...
     
-    // Force resize and render of the hat maker preview
-    setTimeout(function() {
-        resizeHatMakerPreview();
-        hatMakerRenderer.render(hatMakerScene, hatMakerCamera);
-    }, 100);
+    // Open hat maker modal without password check
+    document.getElementById('open-hat-maker').addEventListener('click', function() {
+        openHatMaker(); // Directly open the hat maker without password check
+    });
+    
+    // ... rest of the existing event listeners ...
+});
+
+// Replace the checkHatMakerPassword function with this simplified version
+function checkHatMakerPassword() {
+    // No password check, just open the hat maker
+    hatMakerPasswordChecked = true;
+    openHatMaker();
 }
 
-// Add these variables near the top of your script with the other variables
-let userAuthenticated = false;
+// ... rest of your existing code ...
 
-// Check if the user has been authenticated before
-function checkUserAuthentication() {
-    // Check localStorage for authentication status
-    const authenticated = localStorage.getItem('userAuthenticated');
-    if (authenticated === 'true') {
-        userAuthenticated = true;
-        return true;
-    }
-    return false;
-}
+// Organize code into logical modules using IIFE pattern
+const DogApp = (function() {
+    // Private variables
+    let dog, mixer, walkAction, clock;
+    let currentHat = null;
+    let customHats = {};
+    
+    // Public methods
+    return {
+        init: function() {
+            // Initialize the scene, camera, renderer
+            this.setupScene();
+            this.loadDogModel();
+            this.setupEventListeners();
+        },
+        
+        setupScene: function() {
+            // Scene setup code here
+        },
+        
+        loadDogModel: function() {
+            // Dog model loading code here
+        },
+        
+        // Other methods...
+    };
+})();
 
-// Show the password prompt
-function showPasswordPrompt() {
-    // Create a simple modal for the password
-    const passwordModal = document.createElement('div');
-    passwordModal.id = 'password-modal';
-    passwordModal.style.position = 'fixed';
-    passwordModal.style.top = '0';
-    passwordModal.style.left = '0';
-    passwordModal.style.width = '100%';
-    passwordModal.style.height = '100%';
-    passwordModal.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-    passwordModal.style.display = 'flex';
-    passwordModal.style.justifyContent = 'center';
-    passwordModal.style.alignItems = 'center';
-    passwordModal.style.zIndex = '9999';
+// Initialize the app when the DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    DogApp.init();
+});
+
+// ... existing code ... 
+
+// Create a separate module for hat maker functionality
+const HatMaker = (function() {
+    // Private variables
+    let hatMakerScene, hatMakerCamera, hatMakerRenderer, hatMakerControls;
+    let hatShapes = [];
+    let selectedShape = null;
     
-    const modalContent = document.createElement('div');
-    modalContent.style.backgroundColor = 'white';
-    modalContent.style.padding = '20px';
-    modalContent.style.borderRadius = '5px';
-    modalContent.style.maxWidth = '400px';
-    modalContent.style.width = '80%';
-    modalContent.style.textAlign = 'center';
+    // Public methods
+    return {
+        init: function() {
+            this.initHatMaker();
+            this.setupHatMakerEvents();
+        },
+        
+        initHatMaker: function() {
+            // Hat maker initialization code
+        },
+        
+        // Other hat maker methods...
+    };
+})();
+
+// ... existing code ... 
+
+// Simplify the dog color application logic
+function updateDogColors(dogModel, colors) {
+    if (!dogModel) return;
     
-    modalContent.innerHTML = `
-        <h2>Welcome!</h2>
-        <p>Please enter the password to access this site:</p>
-        <input type="password" id="site-password" style="width: 100%; padding: 8px; margin: 10px 0; box-sizing: border-box;">
-        <button id="submit-password" style="background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer;">Submit</button>
-        <p id="password-error" style="color: red; display: none;">Incorrect password. Please try again.</p>
-    `;
-    
-    passwordModal.appendChild(modalContent);
-    document.body.appendChild(passwordModal);
-    
-    // Focus on the password input
-    setTimeout(() => {
-        document.getElementById('site-password').focus();
-    }, 100);
-    
-    // Add event listener for the submit button
-    document.getElementById('submit-password').addEventListener('click', checkPassword);
-    
-    // Add event listener for pressing Enter in the password field
-    document.getElementById('site-password').addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            checkPassword();
+    dogModel.traverse(function(object) {
+        if (!object.isMesh) return;
+        
+        // Clone the material to avoid affecting other instances
+        object.material = object.material.clone();
+        
+        // Map of part identifiers to color properties
+        const colorMap = {
+            'character_dog': 'body',
+            'character_dogHead': 'head',
+            'character_dogArmLeft': 'leftLeg',
+            'character_dogArmRight': 'rightLeg'
+        };
+        
+        // Special cases for materials
+        if (object.material.name.includes('Red')) {
+            object.material.color.set(colors.tongue);
+        } else if (object.material.name.includes('Black')) {
+            object.material.color.set(colors.eyes);
+        } else {
+            // Check for part matches
+            for (const [part, colorProp] of Object.entries(colorMap)) {
+                if (object.name === part || object.parent.name === part) {
+                    object.material.color.set(colors[colorProp]);
+                    break;
+                }
+            }
         }
     });
 }
 
-// Check the entered password
-function checkPassword() {
-    const password = document.getElementById('site-password').value;
+// Create a reusable function for setting up a 3D scene
+function setupScene(container, cameraPosition, controlsTarget) {
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf0f0f0);
     
-    if (password === 'nicehat') {
-        // Password is correct
-        userAuthenticated = true;
-        localStorage.setItem('userAuthenticated', 'true');
-        
-        // Remove the password modal
-        document.getElementById('password-modal').remove();
-        
-        // Continue with the normal site initialization
-        initializeSite();
-    } else {
-        // Password is incorrect
-        document.getElementById('password-error').style.display = 'block';
-        document.getElementById('site-password').value = '';
-        document.getElementById('site-password').focus();
-    }
+    // Set up camera
+    const camera = new THREE.PerspectiveCamera(
+        75, 
+        container.clientWidth / container.clientHeight, 
+        0.1, 
+        1000
+    );
+    camera.position.copy(cameraPosition);
+    
+    // Set up renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.shadowMap.enabled = true;
+    container.appendChild(renderer.domElement);
+    
+    // Add orbit controls
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.target.copy(controlsTarget);
+    
+    // Add lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+    
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(5, 5, 5);
+    directionalLight.castShadow = true;
+    scene.add(directionalLight);
+    
+    return { scene, camera, renderer, controls };
 }
 
-// Initialize the site after authentication
-function initializeSite() {
-    // Check if the dog has been customized before
-    if (!checkDogCustomization()) {
-        // If not, show the pet customization screen
-        showPetCustomizationScreen();
-        
-        // Apply the golden color scheme as default
-        setTimeout(() => {
-            // Set default golden colors
-            dogColors = {
-                body: '#D2B48C', // Tan
-                head: '#D2B48C',
-                ears: '#D2B48C',
-                leftLeg: '#A0522D', // Sienna
-                rightLeg: '#A0522D',
-                tail: '#D2B48C',
-                paws: '#A0522D',
-                tongue: '#FF6B6B', // Lighter red
-                eyes: '#000000'
-            };
-            
-            // Update the preview if it exists
-            if (document.getElementById('body-color')) {
-                document.getElementById('body-color').value = dogColors.body;
-                document.getElementById('head-color').value = dogColors.head;
-                document.getElementById('left-leg-color').value = dogColors.leftLeg;
-                document.getElementById('right-leg-color').value = dogColors.rightLeg;
-                document.getElementById('tongue-color').value = dogColors.tongue;
-                document.getElementById('eyes-color').value = dogColors.eyes;
-                updatePetPreview();
-            }
-        }, 500); // Short delay to ensure elements are loaded
+// Create a storage utility
+const Storage = {
+    save: function(key, data) {
+        try {
+            localStorage.setItem(key, JSON.stringify(data));
+            return true;
+        } catch (error) {
+            console.error('Error saving to localStorage:', error);
+            return false;
+        }
+    },
+    
+    load: function(key, defaultValue = null) {
+        try {
+            const data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : defaultValue;
+        } catch (error) {
+            console.error('Error loading from localStorage:', error);
+            return defaultValue;
+        }
+    },
+    
+    remove: function(key) {
+        localStorage.removeItem(key);
     }
+};
+
+// Example usage:
+function saveHatsToLocalStorage() {
+    const hatsToSave = {}; 
+    // Convert hats to serializable format...
+    
+    Storage.save('customHats', hatsToSave);
+    Storage.save('currentHatId', currentHatId.toString());
 }
 
-// Modify the DOMContentLoaded event listener to check authentication first
+function loadHatsFromLocalStorage() {
+    const savedHats = Storage.load('customHats', {});
+    currentHatId = parseInt(Storage.load('currentHatId', '0'));
+    
+    // Process saved hats...
+}
+
+// Simplify authentication
+const Auth = {
+    password: 'nicehat',
+    
+    isAuthenticated: function() {
+        return Storage.load('userAuthenticated') === 'true';
+    },
+    
+    authenticate: function(password) {
+        if (password === this.password) {
+            Storage.save('userAuthenticated', 'true');
+            return true;
+        }
+        return false;
+    },
+    
+    showLoginPrompt: function(callback) {
+        // Create and show login modal
+        // On successful login, call callback
+    }
+};
+
+// Usage
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if user is already authenticated
-    if (checkUserAuthentication()) {
-        // User is authenticated, initialize the site
+    if (Auth.isAuthenticated()) {
         initializeSite();
     } else {
-        // User is not authenticated, show password prompt
-        showPasswordPrompt();
+        Auth.showLoginPrompt(initializeSite);
     }
-    
-    // ... rest of your existing DOMContentLoaded code ...
 });
 
-// ... rest of your existing code ... 
+// Modal management utility
+const ModalManager = {
+    modals: {},
+    
+    register: function(id, options = {}) {
+        this.modals[id] = {
+            element: document.getElementById(id),
+            onOpen: options.onOpen || function() {},
+            onClose: options.onClose || function() {}
+        };
+        
+        // Add close button handler if present
+        const closeBtn = this.modals[id].element.querySelector('.close-modal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => this.close(id));
+        }
+        
+        // Add click outside to close if enabled
+        if (options.closeOnOutsideClick) {
+            this.modals[id].element.addEventListener('click', (e) => {
+                if (e.target === this.modals[id].element) this.close(id);
+            });
+        }
+    },
+    
+    open: function(id) {
+        if (!this.modals[id]) return;
+        
+        this.modals[id].element.style.display = 'block';
+        this.modals[id].onOpen();
+    },
+    
+    close: function(id) {
+        if (!this.modals[id]) return;
+        
+        this.modals[id].element.style.display = 'none';
+        this.modals[id].onClose();
+    }
+};
+
+// Usage
+document.addEventListener('DOMContentLoaded', function() {
+    // Register modals
+    ModalManager.register('hat-maker-modal', {
+        closeOnOutsideClick: true,
+        onOpen: function() {
+            resizeHatMakerPreview();
+            hatMakerRenderer.render(hatMakerScene, hatMakerCamera);
+        }
+    });
+    
+    ModalManager.register('save-hat-modal');
+    ModalManager.register('dog-customization-modal');
+    
+    // Open a modal
+    document.getElementById('open-hat-maker').addEventListener('click', function() {
+        if (hatMakerPasswordChecked) {
+            ModalManager.open('hat-maker-modal');
+        } else {
+            checkHatMakerPassword();
+        }
+    });
+});
+
+// Start the animation loop
+animate();
+
+// Add this call to initialize keyboard controls
+document.addEventListener('DOMContentLoaded', function() {
+    // ... existing code ...
+    
+    // Set up keyboard controls
+    setupKeyboardControls();
+    
+    // ... existing code ...
+});
+
+// Function to open the hat maker
+function openHatMaker() {
+    console.log('Opening hat maker');
+    
+    // Show the modal directly
+    document.getElementById('hat-maker-modal').style.display = 'block';
+    
+    // Initialize the hat maker if not already done
+    if (!hatMakerScene) {
+        initHatMaker();
+    } else {
+        // Force resize and render of the hat maker preview
+        setTimeout(function() {
+            resizeHatMakerPreview();
+            hatMakerRenderer.render(hatMakerScene, hatMakerCamera);
+        }, 100);
+    }
+    
+    console.log('Hat maker opened');
+}
+
+// Let's add a test function to directly add a shape
+function testAddShape() {
+    console.log('Testing shape addition');
+    
+    // Create a sphere
+    const geometry = new THREE.SphereGeometry(0.5, 32, 32);
+    const material = new THREE.MeshStandardMaterial({ color: '#ff0000' });
+    const mesh = new THREE.Mesh(geometry, material);
+    
+    // Position it on the dog's head
+    mesh.position.set(0, 1.2, 0);
+    
+    // Add to scene
+    hatMakerScene.add(mesh);
+    
+    // Create shape info
+    const shapeInfo = {
+        id: Date.now(),
+        type: 'sphere',
+        mesh: mesh,
+        color: '#ff0000',
+        position: { x: 0, y: 1.2, z: 0 },
+        rotation: { x: 0, y: 0, z: 0 },
+        dimensions: { radius: 0.5 }
+    };
+    
+    // Add to shapes array
+    hatShapes.push(shapeInfo);
+    
+    // Update UI
+    updateShapeList();
+    
+    console.log('Test shape added');
+}
+
+// Remove all event listeners from shape buttons and reattach them
+function resetShapeButtonListeners() {
+    console.log('Resetting shape button listeners');
+    
+    // Get all shape buttons
+    const shapeButtons = document.querySelectorAll('.shape-btn[data-shape]');
+    console.log('Found', shapeButtons.length, 'shape buttons');
+    
+    // Remove existing listeners by cloning each button
+    shapeButtons.forEach(button => {
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+    });
+    
+    // Add new listeners
+    document.querySelectorAll('.shape-btn[data-shape]').forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const shapeType = this.getAttribute('data-shape');
+            console.log('Shape button clicked:', shapeType);
+            
+            if (shapeType && shapeType !== 'none') {
+                // Use setTimeout to ensure we're not in the middle of another event
+                setTimeout(() => addShape(shapeType), 0);
+            }
+        });
+    });
+}
+
+// Modify the openHatMaker function to reset button listeners
+function openHatMaker() {
+    console.log('Opening hat maker');
+    
+    // Show the modal directly
+    document.getElementById('hat-maker-modal').style.display = 'block';
+    
+    // Initialize the hat maker if not already done
+    if (!hatMakerScene) {
+        initHatMaker();
+        
+        // Reset shape button listeners after initialization
+        resetShapeButtonListeners();
+    } else {
+        // Force resize and render of the hat maker preview
+        setTimeout(function() {
+            resizeHatMakerPreview();
+            hatMakerRenderer.render(hatMakerScene, hatMakerCamera);
+            
+            // Reset shape button listeners
+            resetShapeButtonListeners();
+        }, 100);
+    }
+    
+    console.log('Hat maker opened');
+}
+
+// Remove the setupShapeButtons function and its call from DOMContentLoaded
+// Also remove the duplicate DOMContentLoaded listeners
+
+// Keep only one DOMContentLoaded event listener
+// This should be at the end of your file, replacing any existing ones
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Document loaded - setting up event listeners');
+    
+    // Set up keyboard controls
+    setupKeyboardControls();
+    
+    // Initialize the hat maker button
+    const openHatMakerBtn = document.getElementById('open-hat-maker');
+    if (openHatMakerBtn) {
+        // Remove existing listeners
+        const newBtn = openHatMakerBtn.cloneNode(true);
+        openHatMakerBtn.parentNode.replaceChild(newBtn, openHatMakerBtn);
+        
+        // Add new listener
+        newBtn.addEventListener('click', function() {
+            console.log('Open hat maker button clicked');
+            openHatMaker();
+        });
+    }
+    
+    // Add a test button for debugging
+    const existingTestBtn = document.getElementById('test-add-shape-btn');
+    if (!existingTestBtn) {
+        const testButton = document.createElement('button');
+        testButton.id = 'test-add-shape-btn';
+        testButton.textContent = 'Test Add Shape';
+        testButton.style.position = 'fixed';
+        testButton.style.bottom = '10px';
+        testButton.style.right = '10px';
+        testButton.style.zIndex = '1000';
+        testButton.addEventListener('click', function() {
+            if (hatMakerScene) {
+                testAddShape();
+            } else {
+                console.error('Hat maker scene not initialized');
+            }
+        });
+        document.body.appendChild(testButton);
+    }
+    
+    // Register modals if ModalManager exists
+    if (typeof ModalManager !== 'undefined') {
+        ModalManager.register('hat-maker-modal', {
+            closeOnOutsideClick: true,
+            onOpen: function() {
+                resizeHatMakerPreview();
+                hatMakerRenderer.render(hatMakerScene, hatMakerCamera);
+            }
+        });
+        
+        ModalManager.register('save-hat-modal');
+        ModalManager.register('dog-customization-modal');
+    }
+});
