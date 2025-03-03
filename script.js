@@ -514,9 +514,9 @@ const shapeDefinitions = {
         controls: ['radius', 'height']
     },
     'ring': {
-        createGeometry: (dims) => new THREE.TorusGeometry(dims.radius, 0.1, dims.radialSegments, dims.tubularSegments),
-        defaultDimensions: { radius: 0.5, radialSegments: 16, tubularSegments: 32 },
-        controls: ['radius']
+        createGeometry: (dims) => new THREE.TorusGeometry(dims.radius, dims.thickness, dims.radialSegments, dims.tubularSegments),
+        defaultDimensions: { radius: 0.5, thickness: 0.1, radialSegments: 16, tubularSegments: 32 },
+        controls: ['radius', 'thickness']
     },
     'star': {
         createGeometry: (dims) => createStarGeometry(dims.outerRadius, dims.innerRadius, dims.points),
@@ -593,7 +593,49 @@ function createDimensionSliders(shapeInfo) {
     const dimensions = shapeInfo.dimensions;
     
     definition.controls.forEach(controlName => {
-        // Create slider for each control...
+        // Create a container for this dimension control
+        const controlContainer = document.createElement('div');
+        controlContainer.className = 'dimension-control';
+        
+        // Create label
+        const label = document.createElement('label');
+        label.textContent = controlName.charAt(0).toUpperCase() + controlName.slice(1) + ':';
+        label.htmlFor = `dim-${controlName}`;
+        
+        // Create slider
+        const slider = document.createElement('input');
+        slider.type = 'range';
+        slider.id = `dim-${controlName}`;
+        slider.min = 0.1;
+        slider.max = 2.0;
+        slider.step = 0.1;
+        slider.value = dimensions[controlName] || 0.5;
+        
+        // Create value display
+        const valueDisplay = document.createElement('span');
+        valueDisplay.className = 'dimension-value';
+        valueDisplay.textContent = slider.value;
+        
+        // Add event listener to update the shape when slider changes
+        slider.addEventListener('input', function() {
+            // Update the value display
+            valueDisplay.textContent = this.value;
+            
+            // Update the dimension in the shape info
+            const newDimensions = {...dimensions};
+            newDimensions[controlName] = parseFloat(this.value);
+            
+            // Update the shape with new dimensions
+            updateShapeDimensions(shapeInfo, newDimensions);
+        });
+        
+        // Add elements to container
+        controlContainer.appendChild(label);
+        controlContainer.appendChild(slider);
+        controlContainer.appendChild(valueDisplay);
+        
+        // Add to main container
+        container.appendChild(controlContainer);
     });
 }
 
@@ -622,6 +664,15 @@ function selectShape(index) {
         
         // Update UI controls to match the selected shape
         document.getElementById('shape-color').value = selectedShape.color;
+        
+        // Update rotation controls
+        document.getElementById('rot-x').value = selectedShape.rotation.x;
+        document.getElementById('rot-y').value = selectedShape.rotation.y;
+        document.getElementById('rot-z').value = selectedShape.rotation.z;
+        
+        document.getElementById('rot-x-value').textContent = selectedShape.rotation.x.toFixed(2);
+        document.getElementById('rot-y-value').textContent = selectedShape.rotation.y.toFixed(2);
+        document.getElementById('rot-z-value').textContent = selectedShape.rotation.z.toFixed(2);
         
         // Create dimension sliders for the selected shape
         createDimensionSliders(selectedShape);

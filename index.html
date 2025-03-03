@@ -76,11 +76,22 @@
                     
                     <div class="property-section">
                         <h4>Rotation</h4>
-                        <div id="rotation-control-container">
-                            <div id="rotation-control">
-                                <div id="rotation-handle"></div>
+                        <div class="rotation-control">
+                            <div class="slider-container">
+                                <label for="rot-x">X:</label>
+                                <input type="range" id="rot-x" min="-3.14" max="3.14" step="0.01" value="0">
+                                <span id="rot-x-value">0.00</span>
                             </div>
-                            <button id="reset-rotation">Reset</button>
+                            <div class="slider-container">
+                                <label for="rot-y">Y:</label>
+                                <input type="range" id="rot-y" min="-3.14" max="3.14" step="0.01" value="0">
+                                <span id="rot-y-value">0.00</span>
+                            </div>
+                            <div class="slider-container">
+                                <label for="rot-z">Z:</label>
+                                <input type="range" id="rot-z" min="-3.14" max="3.14" step="0.01" value="0">
+                                <span id="rot-z-value">0.00</span>
+                            </div>
                         </div>
                     </div>
                     
